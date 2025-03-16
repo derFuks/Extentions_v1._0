@@ -20,7 +20,7 @@
 
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <Label Content="Логин:" Width="80"/>
-                    <TextBox x:Name="UserInput" Width="200" Text="avnadmin"/>
+                    <TextBox x:Name="UserInput" Width="200" Text=""/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="5">
