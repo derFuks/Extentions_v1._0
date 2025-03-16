@@ -40,7 +40,7 @@
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Фильтрация и группировка" Margin="417,80,0,0" VerticalAlignment="Top" Height="142">
+        <GroupBox Header="Фильтрация таблицы    " Margin="417,80,0,0" VerticalAlignment="Top" Height="142">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <Label Content="Столбец:" Width="100"/>
