@@ -36,21 +36,22 @@
 
         <GroupBox Header="Выбор таблицы" Margin="417,10,0,0" VerticalAlignment="Top">
             <StackPanel Margin="0,0,0,0">
-                <ComboBox x:Name="TableSelection" Margin="5,5,5,5"/>
+                <ComboBox x:Name="TableSelection" SelectionChanged="TableSelection_Changed" Margin="5,5,5,5"/>
             </StackPanel>
         </GroupBox>
 
         <GroupBox Header="Фильтрация и группировка" Margin="417,80,0,0" VerticalAlignment="Top" Height="142">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="5">
-                    <Label Content="Фильтр:" Width="100"/>
-                    <TextBox x:Name="FilterInput" Width="400"/>
+                    <Label Content="Столбец:" Width="100"/>
+                    <ComboBox x:Name="ColumnSelection" Width="400" />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="5">
-                    <Label Content="Группировка:" Width="100"/>
-                    <TextBox x:Name="GroupByInput" Width="400"/>
+                    <Label Content="Фильтр regex:" Width="100"/>
+                    <TextBox x:Name="FilterInput" Width="400"/>
                 </StackPanel>
+
 
                 <Button Content="Выполнить" Click="ExecuteQuery" HorizontalAlignment="Left" Width="140" Margin="5,0,0,0" Height="25"/>
             </StackPanel>

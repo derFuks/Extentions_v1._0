@@ -74,7 +74,22 @@ namespace Extentions_v1._0
                 MessageBox.Show($"Ошибка загрузки таблиц: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        private void TableSelection_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            string table = TableSelection.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(table)) return;
 
+            try
+            {
+                var columns = _connection.Query<string>($"SELECT column_name FROM information_schema.columns WHERE table_name = '{table}';").ToList();
+                ColumnSelection.ItemsSource = columns;
+                ColumnSelection.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки столбцов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         private void ExecuteQuery(object sender, RoutedEventArgs e)
         {
             if (_connection == null || _connection.State != ConnectionState.Open)
@@ -90,12 +105,13 @@ namespace Extentions_v1._0
                 return;
             }
 
+            string column = ColumnSelection.SelectedItem?.ToString();
             string filter = FilterInput.Text;
-            string groupBy = GroupByInput.Text;
+            // string groupBy = GroupByInput.Text;
 
-            string query = $"SELECT * FROM {table} ";
-            if (!string.IsNullOrEmpty(filter)) query += $"WHERE {filter} ";
-            if (!string.IsNullOrEmpty(groupBy)) query += $"GROUP BY {groupBy} ";
+            string query = $"SELECT * FROM \"{table}\" ";
+            if (!string.IsNullOrEmpty(filter) && !string.IsNullOrEmpty(filter)) query += $"WHERE \"{column}\" ~ '{filter}' ";
+            // if (!string.IsNullOrEmpty(groupBy)) query += $"GROUP BY {groupBy} ";
             query += $"LIMIT {PageSize} OFFSET {_currentPage * PageSize}";
 
             try
