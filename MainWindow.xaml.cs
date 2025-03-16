@@ -14,6 +14,8 @@ namespace Extentions_v1._0
         private NpgsqlConnection _connection;
         private int _currentPage = 0;
         private const int PageSize = 15;
+        private const string AllColumnsOption = "_Все значения";
+        private Dictionary<string, string> columnTypes = new();
 
         public MainWindow()
         {
@@ -68,12 +70,16 @@ namespace Extentions_v1._0
             {
                 var tables = _connection.Query<string>("SELECT tablename FROM pg_tables WHERE schemaname = 'public';").ToList();
                 TableSelection.ItemsSource = tables;
+                TableSelection.SelectedIndex = -1;
+                ColumnSelection.ItemsSource = new List<string> { AllColumnsOption };
+                ColumnSelection.SelectedItem = AllColumnsOption;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки таблиц: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         private void TableSelection_Changed(object sender, SelectionChangedEventArgs e)
         {
             string table = TableSelection.SelectedItem?.ToString();
@@ -81,8 +87,13 @@ namespace Extentions_v1._0
 
             try
             {
-                var columns = _connection.Query<string>($"SELECT column_name FROM information_schema.columns WHERE table_name = '{table}';").ToList();
-                ColumnSelection.ItemsSource = columns;
+                var columns = _connection.Query<(string column_name, string data_type)>(
+                    $"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{table}';").ToList();
+                columnTypes = columns.ToDictionary(c => c.column_name, c => c.data_type);
+                var columnNames = columns.Select(c => c.column_name).ToList();
+                columns.Insert(0, (AllColumnsOption, "text"));
+                ColumnSelection.ItemsSource = columnNames;
+                ColumnSelection.SelectedItem = AllColumnsOption;
                 ColumnSelection.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
@@ -90,6 +101,7 @@ namespace Extentions_v1._0
                 MessageBox.Show($"Ошибка загрузки столбцов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         private void ExecuteQuery(object sender, RoutedEventArgs e)
         {
             if (_connection == null || _connection.State != ConnectionState.Open)
@@ -108,9 +120,31 @@ namespace Extentions_v1._0
             string column = ColumnSelection.SelectedItem?.ToString();
             string filter = FilterInput.Text;
             // string groupBy = GroupByInput.Text;
-
             string query = $"SELECT * FROM \"{table}\" ";
-            if (!string.IsNullOrEmpty(filter) && !string.IsNullOrEmpty(filter)) query += $"WHERE \"{column}\" ~ '{filter}' ";
+            
+            if (!string.IsNullOrEmpty(filter) && !string.IsNullOrEmpty(column) && column != AllColumnsOption)
+            {
+                if (columnTypes.ContainsKey(column))
+                {
+                    string columnType = columnTypes[column];
+                    if (columnType == "smallint" || columnType == "integer" || columnType == "bigint" || columnType == "numeric")
+                    { 
+                        if (int.TryParse(filter, out _))
+                        {
+                            query += $"WHERE \"{column}\" = '{filter}' ";
+                        }
+                        else
+                        {
+                            MessageBox.Show("Фильтр должен содержать только числа для числовых колонок!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        query += $"WHERE \"{column}\" ~ '{filter}' ";
+                    }
+                }
+            }
             // if (!string.IsNullOrEmpty(groupBy)) query += $"GROUP BY {groupBy} ";
             query += $"LIMIT {PageSize} OFFSET {_currentPage * PageSize}";
 
@@ -125,6 +159,13 @@ namespace Extentions_v1._0
             }
         }
 
+        private void ResetFilters(object sender, RoutedEventArgs e)
+        {
+            TableSelection.SelectedIndex = -1;
+            ColumnSelection.ItemsSource = new List<string> { AllColumnsOption };
+            ColumnSelection.SelectedItem = AllColumnsOption;
+            FilterInput.Text = string.Empty;
+        }
         private void NextPage(object sender, RoutedEventArgs e)
         {
             _currentPage++;

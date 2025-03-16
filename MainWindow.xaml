@@ -40,7 +40,7 @@
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Фильтрация таблицы    " Margin="417,80,0,0" VerticalAlignment="Top" Height="142">
+        <GroupBox Header="Фильтрация таблицы" Margin="417,80,0,0" VerticalAlignment="Top" Height="142">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <Label Content="Столбец:" Width="100"/>
@@ -52,8 +52,10 @@
                     <TextBox x:Name="FilterInput" Width="400"/>
                 </StackPanel>
 
-
-                <Button Content="Выполнить" Click="ExecuteQuery" HorizontalAlignment="Left" Width="140" Margin="5,0,0,0" Height="25"/>
+                <StackPanel Orientation="Horizontal" Margin="5,5,5,5" Height="25">
+                    <Button Content="Выполнить" Click="ExecuteQuery" HorizontalAlignment="Left" Width="140" Margin="5,0,5,0"/>
+                    <Button Content="Сбросить" Click="ResetFilters" HorizontalAlignment="Left" Width="140" Margin="5,0,5,0"/>
+                </StackPanel>
             </StackPanel>
         </GroupBox>
 
