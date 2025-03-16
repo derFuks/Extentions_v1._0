@@ -120,6 +120,7 @@ namespace Extentions_v1._0
             string column = ColumnSelection.SelectedItem?.ToString();
             string filter = FilterInput.Text;
             // string groupBy = GroupByInput.Text;
+            filter = filter.Replace("'", "''");
             string query = $"SELECT * FROM \"{table}\" ";
             
             if (!string.IsNullOrEmpty(filter) && !string.IsNullOrEmpty(column) && column != AllColumnsOption)
@@ -131,7 +132,7 @@ namespace Extentions_v1._0
                     { 
                         if (int.TryParse(filter, out _))
                         {
-                            query += $"WHERE \"{column}\" = '{filter}' ";
+                            query += $"WHERE \"{column}\" = {filter} "; // убрал кавычки вокруг {filter}
                         }
                         else
                         {
